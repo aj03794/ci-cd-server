@@ -23,7 +23,8 @@ export const cloneRepo = ({
 			method: 'cloneRepo',
 			data: {
 				successful: true,
-				err: null
+				err: null,
+				locationOfRepo: locationToCloneRepo
 			}
 		})
 	})
