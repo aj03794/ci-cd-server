@@ -1,5 +1,5 @@
 import Hapi from 'hapi'
-im
+import { handleNewCode } from '../handle-new-code'
 // const Hapi = require('hapi')
 // const url = await ngrok.connect();
 
@@ -23,14 +23,22 @@ export const createRoutes = () => {
     method: 'POST',
     path: '/payload',
     handler: (request, h) => {
-        // console.log('---------------------------------')
-        console.log('request', request)
+        console.log('---------------------------------')
+        const { payload: { ref, repository: { clone_url: urlToClone } } } = request
+        // console.log('cloneUrl', urlToClone)
+        const branch = ref.split('/')[2]
+        // console.log('branch', branch)
+        handleNewCode({
+          branch,
+          urlToClone
+        })
         // console.log('---------------------------------')
         // updateCode()
         // downloadCode({  })
         // .then(() => testCode({  }))
         // .then(() => alertListenersToNewCode({  }))
         // return 'hello world'
+        return {}
     }
   }]
 }
