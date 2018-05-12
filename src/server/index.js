@@ -25,19 +25,11 @@ export const createRoutes = () => {
     handler: (request, h) => {
         console.log('---------------------------------')
         const { payload: { ref, repository: { clone_url: urlToClone } } } = request
-        // console.log('cloneUrl', urlToClone)
         const branch = ref.split('/')[2]
-        // console.log('branch', branch)
         handleNewCode({
           branch,
           urlToClone
         })
-        // console.log('---------------------------------')
-        // updateCode()
-        // downloadCode({  })
-        // .then(() => testCode({  }))
-        // .then(() => alertListenersToNewCode({  }))
-        // return 'hello world'
         return {}
     }
   }]
