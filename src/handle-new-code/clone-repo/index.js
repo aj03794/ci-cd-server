@@ -1,7 +1,8 @@
-import { exec } from 'child_process'
+// import { exec } from 'child_process'
 import { resolve as resolvePath } from 'path'
 
 export const cloneRepo = ({
+	exec,
 	urlToClone
 }) => new Promise((resolve, reject) => {
 	// clone url to downloads-from-github
