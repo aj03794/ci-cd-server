@@ -5,6 +5,7 @@ export const installNodeModules = ({
 	data,
 	repoName
 }) => new Promise((resolve, reject) => {
+	console.log('Installing node modules')
 	const { locationOfRepo } = data
 	exec(`npm install`, { cwd: resolvePath(locationOfRepo, repoName) }, (err, stdout, stderr) => {
 		if (err) {
