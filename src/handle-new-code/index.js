@@ -11,13 +11,16 @@ export const handleNewCode = ({
 		console.log('This code was pushed to fake-branch')
 		cloneRepo({
 			exec,
-			urlToClone
+			urlToClone,
+			repoName
 		})
 		.then(({
 			data
 		}) => installNodeModules({ exec, data, repoName }))
 		.then(console.log)
-		.catch(console.log)
+		.then(() => resolve())
+		// .then(console.log)
+		// .catch(console.log)
 		// .then(() => testRepo)
 		// .then(() => publish)
 		// clone repo to `downloads-from-github`
