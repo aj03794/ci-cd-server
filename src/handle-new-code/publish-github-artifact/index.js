@@ -4,12 +4,11 @@ import { resolve as resolvePath } from 'path'
 import { readdir as readDir } from 'fs-extra'
 import zipdir from 'zip-dir'
 
-
 export const publishGithubArtifact = ({
-	data
+	locationOfRepo
 }) => new Promise((resolve, reject) => {
 	console.log('Creating github release')
-	const { locationOfRepo } = data
+	// const { locationOfRepo } = data
 	return readDirectory({ locationOfRepo })
 	.then(({
 		assetsLocation,
@@ -89,8 +88,8 @@ const createOpts = ({ files }) => {
 		  owner: process.env.GITHUB_REPO_OWNER,
 		  repo: 'raspberry-pi-camera',
 			// body: 'my description'
-		  tag: 'v1.0.10',
-		  name: 'v1.0.10',
+		  tag: 'v1.0.31',
+		  name: 'v1.0.31',
 		  notes: 'very good!',
 		  draft: false,
 		  prerelease: false,
