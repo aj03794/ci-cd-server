@@ -1,12 +1,13 @@
 import { resolve as resolvePath } from 'path'
 
 export const buildCode = ({
-	data,
+	locationOfRepo,
+	// data,
 	repoName,
 	exec
 }) => new Promise((resolve, reject) => {
 	console.log('testingCode')
-	const { locationOfRepo } = data
+	// const { locationOfRepo } = data
 	exec(`npm run build`, { cwd: resolvePath(locationOfRepo, repoName) }, (err, stdout, stderr) => {
 		console.log('stdout', stdout)
 		// if (stdout === 'exit 0') {

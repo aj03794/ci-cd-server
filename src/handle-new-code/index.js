@@ -1,4 +1,4 @@
-import { path as resolvePath } from 'path'
+import { resolve as resolvePath } from 'path'
 
 import { cloneRepo } from './clone-repo'
 import { installNodeModules } from './install-node-modules'
@@ -12,12 +12,18 @@ export const handleNewCode = ({
 	branch,
 	urlToClone,
 	repoName,
-	publish
+	publish,
+	githubUser
 }) => new Promise((resolve, reject) => {
 	if (branch === 'master') {
 		const locationOfRepo = resolvePath(process.env.DIRECTORY_TO_SAVE_REPOS)
 		console.log('locationOfRepo', locationOfRepo)
-		console.log('This code was pushed to master')
+		console.log('Code was recently merged into master')
+		const commonReqs = {
+			repoName,
+			exec,
+			locationOfRepo
+		}
 		cloneRepo({
 			exec,
 			urlToClone,
@@ -25,35 +31,38 @@ export const handleNewCode = ({
 		})
 		.then(({
 			data
-		}) => installNodeModules({ repoName, exec, data }))
+		}) => installNodeModules({ ...commonReqs }))
 		.then(({
 			data
-		}) => testCode({ repoName, exec, data }))
+		}) => testCode({ ...commonReqs }))
 		.then(({
 			data
-		}) => buildCode({ repoName, exec, data }))
-
+		}) => buildCode({ ...commonReqs }))
 		.then(() => {
 			return incrementVersion({})
 		})
 		.then(({
-			data
-		}) => publishGithubArtifact({ locationOfRepo }))
-		.then(() => {
-			const githubUser = 'aj03794'
-			const repoName = 'raspberry-pi-camera'
+			version
+		}) => publishGithubArtifact({ version, locationOfRepo, githubUser }))
+		.then(({
+			version
+		}) => {
 			console.log('Alerting listening apps that new version of app is available')
+			console.log('githubUser', githubUser)
+			console.log('repoName', repoName)
+			console.log('version', version)
 			// emit to listening apps that a new version of the code is available for donwload
 			publish()
-	            .then(({ connect }) => connect())
-	            .then(({ send }) => send({
-	                channel: 'continuous delivery',
-	                data: {
-	                    githubUser,
-											repoName
-	                }
-	            }))
-	        return {}
+	      .then(({ connect }) => connect())
+	      .then(({ send }) => send({
+	          channel: 'continuous delivery',
+	          data: {
+	              githubUser,
+								repoName,
+								version
+	          }
+	      }))
+	     return {}
 		})
 	}
 
