@@ -48,6 +48,7 @@
     "hapi": "^17.4.0",
     "localtunnel": "^1.9.0",
     "publish-release": "^1.5.1",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "request": "^2.86.0"
   }
 }

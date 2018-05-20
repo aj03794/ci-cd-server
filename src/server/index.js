@@ -25,13 +25,19 @@ export const createRoutes = ({ publish }) => {
     path: '/payload',
     handler: (request, h) => {
       console.log('---------------------------------')
+      // console.log('request.payload', request.payload)
         if (request.payload && request.payload.pull_request && request.payload.pull_request.merged) {
-          // console.log('REQUEST', request.payload)
-          console.log('CODE WAS MERGED')
-          // console.log('====>', request.payload.pull_request.base)
+          console.log('REQUEST PAYLOAD', request.payload)
+          console.log(request.payload.repository)
+          // console.log(request.payload.repository.name)
+        //   console.log('CODE WAS MERGED')
+        //   // console.log('====>', request.payload.pull_request.base)
           const {
             payload: {
               repository: {
+                owner: {
+                  login: githubUser
+                },
                 name: repoName,
                 clone_url: urlToClone
               },
@@ -45,11 +51,13 @@ export const createRoutes = ({ publish }) => {
           console.log('branch', branch)
           console.log('repoName', repoName)
           console.log('urlToClone', urlToClone)
+          console.log('githubUser', githubUser)
           handleNewCode({
             branch,
             urlToClone,
             repoName,
-            publish
+            publish,
+            githubUser
           })
         }
         return {}
