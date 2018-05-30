@@ -3,9 +3,9 @@ import { resolve as resolvePath } from 'path'
 import process from 'process'
 
 export const incrementVersion = ({
-	// exec
+	repoName
 }) => new Promise((resolve, reject) => {
-	const cwd = resolvePath(__dirname, '../../../', 'downloads-from-github', 'raspberry-pi-camera')
+	const cwd = resolvePath(cwd(), 'downloads-from-github', repoName)
 	console.log('CWD', cwd)
 	return doIncrementVersion({
 		cwd

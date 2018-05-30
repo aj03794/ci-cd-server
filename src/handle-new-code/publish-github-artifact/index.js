@@ -7,27 +7,22 @@ import zipdir from 'zip-dir'
 export const publishGithubArtifact = ({
 	version,
 	locationOfRepo,
-	githubUser
+	githubUser,
+	repoName
 }) => new Promise((resolve, reject) => {
 	console.log('Creating github release')
-	// const { locationOfRepo } = data
-	console.log('locationOfRepo', locationOfRepo)
-	console.log('---->', resolvePath(locationOfRepo, 'raspberry-pi-camera', 'node_modules'))
-	console.log('====>', resolvePath(locationOfRepo, 'raspberry-pi-camera', 'dist'))
-	const src = resolvePath(locationOfRepo, 'raspberry-pi-camera', 'node_modules')
-	const dest = resolvePath(locationOfRepo, 'raspberry-pi-camera', 'dist', 'node_modules')
-	return readDirectory({ locationOfRepo })
+	return readDirectory({ locationOfRepo, repoName })
 	.then(({
 		assetsLocation,
 		files
-	}) => moveFolder({ src, dest, assetsLocation, files }))
+	// }) => moveFolder({ src, dest, assetsLocation, files }))
+	// .then(({
+	// 	assetsLocation,
+	// 	files
+	}) => zipDirectory({ assetsLocation, files, locationOfRepo, version, repoName }))
 	.then(({
-		assetsLocation,
 		files
-	}) => zipDirectory({ assetsLocation, files, locationOfRepo, version }))
-	.then(({
-		files
-	}) => createOpts({ version, files, githubUser }))
+	}) => createOpts({ version, files, githubUser, repoName }))
 	.then(({
 		opts
 	}) => {
@@ -55,7 +50,7 @@ export const readDirectory = ({
 }) => new Promise((resolve, reject) => {
 	const assetsLocation = resolvePath(
 		locationOfRepo,
-		'raspberry-pi-camera',
+		repoName,
 		'dist'
 	)
 	console.log('assetsLocation', assetsLocation)
@@ -75,10 +70,11 @@ const zipDirectory = ({
 	assetsLocation,
 	files,
 	locationOfRepo,
-	version
+	version,
+	repoName
 }) => new Promise((resolve, reject) => {
 	console.log('ASSETSLOCATION', assetsLocation)
-	return zipdir(assetsLocation, { saveTo: resolvePath(assetsLocation, '../', `raspberry-pi-camera-${version}.zip`) }, function (err, buffer) {
+	return zipdir(assetsLocation, { saveTo: resolvePath(assetsLocation, '../', `${repoName}-${version}.zip`) }, function (err, buffer) {
 		if (err) {
 			console.log('zipDirectory err', err)
 			return
@@ -87,7 +83,7 @@ const zipDirectory = ({
 		return resolve({
 			assetsLocation,
 			files: [
-				resolvePath(assetsLocation, '../', `raspberry-pi-camera-${version}.zip`)
+				resolvePath(assetsLocation, '../', `${repoName}-${version}.zip`)
 			]
 		})
 	})
@@ -96,15 +92,16 @@ const zipDirectory = ({
 const createOpts = ({
 	version,
 	files,
-	githubUser
+	githubUser,
+	repoName
 }) => {
 	return Promise.resolve({
 		opts: {
 		  token: process.env.GITHUB_OAUTH_TOKEN,
 		  owner: githubUser,
-		  repo: 'raspberry-pi-camera',
+		  repo: repoName,
 		  tag: version,
-		  name: 'Raspberry Pi Camera',
+		  name: `${repoName}-${version}`,
 		  draft: false,
 		  prerelease: false,
 		  reuseRelease: true,

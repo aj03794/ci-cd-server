@@ -39,7 +39,7 @@ export const handleNewCode = ({
 			data
 		}) => buildCode({ ...commonReqs }))
 		.then(() => {
-			return incrementVersion({})
+			return incrementVersion({ ...commonReqs })
 		})
 		.then(({
 			version
@@ -57,9 +57,9 @@ export const handleNewCode = ({
 	      .then(({ send }) => send({
 	          channel: 'continuous delivery',
 	          data: {
-	              githubUser,
-								repoName,
-								version
+				  githubUser,
+				  repoName,
+				  version
 	          }
 	      }))
 	     return {}

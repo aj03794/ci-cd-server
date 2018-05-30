@@ -1,13 +1,14 @@
 // import { exec } from 'child_process'
 import { resolve as resolvePath } from 'path'
 import { existsSync, remove } from 'fs-extra'
+import { cwd } from 'process'
 
 export const cloneRepo = ({
 	exec,
 	urlToClone,
 	repoName
 }) => new Promise((resolve, reject) => {
-	const directoryToCloneRepo = process.env.DIRECTORY_TO_SAVE_REPOS || resolvePath(__dirname, '../../../', 'downloads-from-github')
+	const directoryToCloneRepo = process.env.DIRECTORY_TO_SAVE_REPOS || resolvePath(cwd(), 'downloads-from-github')
 	const locationToCloneRepo = resolvePath(directoryToCloneRepo)
 	doesCopyOfRedoExist({
 		locationToCloneRepo,
