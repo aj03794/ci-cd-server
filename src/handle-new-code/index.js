@@ -43,7 +43,7 @@ export const handleNewCode = ({
 		})
 		.then(({
 			version
-		}) => publishGithubArtifact({ version, locationOfRepo, githubUser }))
+		}) => publishGithubArtifact({ repoName, version, locationOfRepo, githubUser }))
 		.then(({
 			version
 		}) => {

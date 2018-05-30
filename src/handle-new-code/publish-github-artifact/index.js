@@ -46,7 +46,8 @@ export const publishGithubArtifact = ({
 })
 
 export const readDirectory = ({
-	locationOfRepo
+	locationOfRepo,
+	repoName
 }) => new Promise((resolve, reject) => {
 	const assetsLocation = resolvePath(
 		locationOfRepo,
