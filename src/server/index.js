@@ -1,7 +1,5 @@
 import Hapi from 'hapi'
-import { handleNewCode } from '../handle-new-code'
-// const Hapi = require('hapi')
-// const url = await ngrok.connect();
+import { continuousIntegration } from '../continuous-integration'
 
 const server = Hapi.server({
     port: process.env.PORT || 3000,
@@ -10,16 +8,17 @@ const server = Hapi.server({
 
 const addRoute = route => server.route(route)
 
-export const init = async ({ redis }) => {
+export const init = async ({ redis, slackCreator }) => {
     const { publish } = redis()
+    const slack = slackCreator({ publish })
     await server.start()
     console.log(`Server running at: ${server.info.uri}`)
-    createRoutes({ publish }).forEach(addRoute)
+    createRoutes({ publish, slack }).forEach(addRoute)
     return server
 }
 
 
-export const createRoutes = ({ publish }) => {
+export const createRoutes = ({ publish, slack }) => {
   return [{
     method: 'POST',
     path: '/payload',
@@ -29,9 +28,6 @@ export const createRoutes = ({ publish }) => {
         if (request.payload && request.payload.pull_request && request.payload.pull_request.merged) {
           console.log('REQUEST PAYLOAD', request.payload)
           console.log(request.payload.repository)
-          // console.log(request.payload.repository.name)
-        //   console.log('CODE WAS MERGED')
-        //   // console.log('====>', request.payload.pull_request.base)
           const {
             payload: {
               repository: {
@@ -52,12 +48,16 @@ export const createRoutes = ({ publish }) => {
           console.log('repoName', repoName)
           console.log('urlToClone', urlToClone)
           console.log('githubUser', githubUser)
-          handleNewCode({
+          slack({
+            slackMsg: `STARTING NEW BUILD FOR: ${repoName}`
+          })
+          continuousIntegration({
             branch,
             urlToClone,
             repoName,
             publish,
-            githubUser
+            githubUser,
+            slack
           })
         }
         return {}

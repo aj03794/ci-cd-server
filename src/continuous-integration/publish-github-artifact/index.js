@@ -15,10 +15,6 @@ export const publishGithubArtifact = ({
 	.then(({
 		assetsLocation,
 		files
-	// }) => moveFolder({ src, dest, assetsLocation, files }))
-	// .then(({
-	// 	assetsLocation,
-	// 	files
 	}) => zipDirectory({ assetsLocation, files, locationOfRepo, version, repoName }))
 	.then(({
 		files
@@ -26,8 +22,8 @@ export const publishGithubArtifact = ({
 	.then(({
 		opts
 	}) => {
-		console.log('opts', opts)
 		return publishRelease(opts, (err, release) => {
+			console.log('Publishing release')
 		  // `release`: object returned from github about the newly created release
 			if (err) {
 				console.log('err publishing release', err)
@@ -39,7 +35,7 @@ export const publishGithubArtifact = ({
 					}
 				})
 			}
-			console.log('RELEASE CREATED', release)
+			console.log('RELEASE CREATED')
 			resolve({ version })
 		})
 	})
@@ -102,7 +98,7 @@ const createOpts = ({
 		  owner: githubUser,
 		  repo: repoName,
 		  tag: version,
-		  name: `${repoName}-${version}`,
+		  name: `repoName`,
 		  draft: false,
 		  prerelease: false,
 		  reuseRelease: true,
@@ -111,17 +107,8 @@ const createOpts = ({
 		  skipDuplicatedAssets: false,
 		  editRelease: false,
 		  deleteEmptyTag: false,
-			assets: files,
+		  assets: files,
 		  target_commitish: 'master'
 		}
 	})
 }
-
-export const moveFolder = ({ src, dest, assetsLocation, files }) => new Promise((resolve, reject) => {
-	console.log('copying node_modules')
-	moveSync(src, dest)
-	return resolve({
-		assetsLocation,
-		files
-	})
-})

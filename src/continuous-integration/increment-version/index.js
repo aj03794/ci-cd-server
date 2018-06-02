@@ -1,6 +1,7 @@
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 import { resolve as resolvePath } from 'path'
 import { cwd } from 'process'
+import { readFileSync } from 'fs'
 
 export const incrementVersion = ({
 	repoName
@@ -10,16 +11,26 @@ export const incrementVersion = ({
 	return doIncrementVersion({
 		currentWorkingDir
 	})
+	.catch(err => {
+		return reject(err)
+	})
 	.then(() => getVersion({ currentWorkingDir }))
 	.then(({ version }) => resolve({ version }))
+	.catch(err => {
+		return reject({
+			method: 'incrementVerson',
+			data: {
+				err
+			}
+		})
+	})
 })
 
 const getVersion = ({
 	currentWorkingDir
 }) => new Promise((resolve, reject) => {
 	console.log('Getting version')
-	const version = require(`${currentWorkingDir}/package.json`)['version']
-	console.log('Version', version)
+	const version = JSON.parse(readFileSync(resolvePath(currentWorkingDir, 'package.json')))['version']
 	return resolve({ version })
 })
 
@@ -28,19 +39,24 @@ const doIncrementVersion = ({
 	currentWorkingDir
 }) => new Promise((resolve, reject) => {
 	console.log('Incrementing version')
-	return exec(`npm run version-patch`,
-		{
-			cwd: currentWorkingDir
-		},
-		(err, stdout, stderr) => {
-			if (err) {
-				console.log('err in incrementingVersion', err)
-				return
+
+	const ls = spawn(`npm`, ['run', 'version-patch'], { cwd: currentWorkingDir });
+
+
+	ls.stderr.on('data', (data) => {
+	  console.log(`doIncrementVersion stderr: ${data}`)
+	})
+
+	ls.on('close', (code) => {
+		if (code !== 0) {
+				return reject({
+					method: 'installNodeModules',
+					data: {
+						err
+					}
+				})
 			}
-			console.log('stdout', stdout)
-			console.log('stderr', stderr)
-			console.log('FINISHED INCREMENTING VERSION')
-			resolve({})
-		}
-	)
+	  console.log(`doIncrementVersion exited with code ${code}`);
+		resolve({})
+	})
 })

@@ -23,13 +23,24 @@ export const cloneRepo = ({
 		return Promise.resolve()
 	})
 	.then(() => doRepoClone({ locationToCloneRepo, urlToClone, exec }))
-	.catch(err => console.log('err', err))
+	.catch(err => {
+		console.log('err', err)
+		return reject(err)
+	})
 	.then(result => console.log('result', result))
 	.then(() => {
 		console.log('Finished cloning')
 		resolve({
 			data: {
 				locationOfRepo: locationToCloneRepo
+			}
+		})
+	})
+	.catch(err => {
+		return reject({
+			method: 'cloneRepo',
+			data: {
+				err
 			}
 		})
 	})
@@ -82,18 +93,15 @@ const doRepoClone = ({
 	exec(`git clone ${urlToClone}`, { cwd: locationToCloneRepo }, (err, stdout, stderr) => {
 		if (err) {
 			return reject({
-				method: 'cloneRepo',
+				method: 'doRepoClone',
 				data: {
-					successful: false,
 					err
 				}
 			})
 		}
 		return resolve({
-			method: 'cloneRepo',
+			method: 'doRepoClone',
 			data: {
-				successful: true,
-				err: null,
 				locationOfRepo: locationToCloneRepo
 			}
 		})

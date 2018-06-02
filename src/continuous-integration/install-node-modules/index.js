@@ -12,7 +12,6 @@ export const installNodeModules = ({
 			return reject({
 				method: 'installNodeModules',
 				data: {
-					successful: false,
 					err
 				}
 			})
@@ -20,8 +19,6 @@ export const installNodeModules = ({
 		return resolve({
 			method: 'installNodeModules',
 			data: {
-				successful: true,
-				err: null,
 				locationOfRepo
 			}
 		})

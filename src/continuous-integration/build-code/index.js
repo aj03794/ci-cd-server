@@ -10,15 +10,11 @@ export const buildCode = ({
 	// const { locationOfRepo } = data
 	exec(`npm run build`, { cwd: resolvePath(locationOfRepo, repoName) }, (err, stdout, stderr) => {
 		console.log('stdout', stdout)
-		// if (stdout === 'exit 0') {
-		// 	console.log('FINISHED')
-		// }
-		// console.log('stderr', stderr)
+
 		if (err) {
 			return reject({
 				method: 'buildCode',
 				data: {
-					successful: false,
 					err
 				}
 			})
@@ -26,8 +22,6 @@ export const buildCode = ({
 		return resolve({
 			method: 'buildCode',
 			data: {
-				successful: true,
-				err: null,
 				locationOfRepo
 			}
 		})
