@@ -1,9 +1,11 @@
 import Hapi from 'hapi'
 import { continuousIntegration } from '../continuous-integration'
+import { address } from 'ip'
+
 
 const server = Hapi.server({
     port: process.env.PORT || 3000,
-    host: 'localhost'
+    host: address()
 })
 
 const addRoute = route => server.route(route)
@@ -24,7 +26,6 @@ export const createRoutes = ({ publish, slack }) => {
     path: '/payload',
     handler: (request, h) => {
       console.log('---------------------------------')
-      // console.log('request.payload', request.payload)
         if (request.payload && request.payload.pull_request && request.payload.pull_request.merged) {
           console.log('REQUEST PAYLOAD', request.payload)
           console.log(request.payload.repository)
@@ -51,14 +52,14 @@ export const createRoutes = ({ publish, slack }) => {
           slack({
             slackMsg: `STARTING NEW BUILD FOR: ${repoName}`
           })
-          continuousIntegration({
-            branch,
-            urlToClone,
-            repoName,
-            publish,
-            githubUser,
-            slack
-          })
+          // continuousIntegration({
+          //   branch,
+          //   urlToClone,
+          //   repoName,
+          //   publish,
+          //   githubUser,
+          //   slack
+          // })
         }
         return {}
     }

@@ -46,6 +46,7 @@
     "create-subject-with-filter": "0.0.5",
     "fs-extra": "^6.0.1",
     "hapi": "^17.4.0",
+    "ip": "^1.1.5",
     "localtunnel": "^1.9.0",
     "publish-release": "^1.5.1",
     "redis": "^2.8.0",
