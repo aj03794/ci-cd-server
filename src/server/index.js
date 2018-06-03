@@ -52,14 +52,14 @@ export const createRoutes = ({ publish, slack }) => {
           slack({
             slackMsg: `STARTING NEW BUILD FOR: ${repoName}`
           })
-          // continuousIntegration({
-          //   branch,
-          //   urlToClone,
-          //   repoName,
-          //   publish,
-          //   githubUser,
-          //   slack
-          // })
+          continuousIntegration({
+            branch,
+            urlToClone,
+            repoName,
+            publish,
+            githubUser,
+            slack
+          })
         }
         return {}
     }
