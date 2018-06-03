@@ -3,7 +3,7 @@ import { resolve as resolvePath } from 'path'
 import { cloneRepo } from './clone-repo'
 import { installNodeModules } from './install-node-modules'
 import { publishGithubArtifact } from './publish-github-artifact'
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 import { testCode } from './test-code'
 import { buildCode } from './build-code'
 import { incrementVersion } from './increment-version'
@@ -23,7 +23,8 @@ export const continuousIntegration = ({
 		const commonReqs = {
 			repoName,
 			exec,
-			locationOfRepo
+			locationOfRepo,
+			spawn
 		}
 		slack({
 			slackMsg: {
