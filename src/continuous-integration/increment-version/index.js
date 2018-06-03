@@ -42,9 +42,12 @@ const doIncrementVersion = ({
 
 	const ls = spawn(`npm`, ['run', 'version-patch'], { cwd: currentWorkingDir });
 
+	let err = null
 
 	ls.stderr.on('data', (data) => {
 	  console.log(`doIncrementVersion stderr: ${data}`)
+	  err = null
+
 	})
 
 	ls.on('close', (code) => {

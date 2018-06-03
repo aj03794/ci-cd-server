@@ -35,7 +35,7 @@ export const createRoutes = ({ publish, slack }) => {
                   login: githubUser
                 },
                 name: repoName,
-                clone_url: urlToClone
+                ssh_url: urlToClone
               },
               pull_request: {
                 base: {
