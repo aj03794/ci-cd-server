@@ -48,6 +48,7 @@
     "hapi": "^17.4.0",
     "ip": "^1.1.5",
     "localtunnel": "^1.9.0",
+    "pub-sub-redis": "0.0.2",
     "publish-release": "^1.5.1",
     "redis": "^2.8.0",
     "request": "^2.86.0"

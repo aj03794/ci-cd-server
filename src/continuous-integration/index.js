@@ -104,16 +104,14 @@ export const continuousIntegration = ({
 			console.log('repoName', repoName)
 			console.log('version', version)
 			// emit to listening apps that a new version of the code is available for donwload
-			publish()
-			.then(({ connect }) => connect())
-			.then(({ send }) => send({
+			publish({
 				channel: 'continuous delivery',
 				data: {
 					githubUser,
 					repoName,
 					version
 				}
-		  }))
+			})
 		  return {}
 		})
 		.catch(err => {

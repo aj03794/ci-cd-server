@@ -10,8 +10,8 @@ const server = Hapi.server({
 
 const addRoute = route => server.route(route)
 
-export const init = async ({ redis, slackCreator }) => {
-    const { publish } = redis()
+export const init = async ({ publish, slackCreator }) => {
+    
     const slack = slackCreator({ publish })
     await server.start()
     console.log(`Server running at: ${server.info.uri}`)
