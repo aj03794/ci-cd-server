@@ -11,7 +11,11 @@ export const publishGithubArtifact = ({
 	repoName
 }) => new Promise((resolve, reject) => {
 	console.log('Creating github release')
-	return readDirectory({ locationOfRepo, repoName })
+	return moveFolder({
+		src: resolvePath(locationOfRepo, repoName, 'node_modules'),
+		dest: resolvePath(locationOfRepo, repoName, 'dist', 'node_modules')
+	})
+	.then(() => readDirectory({ locationOfRepo, repoName })
 	.then(({
 		assetsLocation,
 		files
@@ -38,7 +42,7 @@ export const publishGithubArtifact = ({
 			console.log('RELEASE CREATED')
 			resolve({ version })
 		})
-	})
+	}))
 })
 
 export const readDirectory = ({
@@ -112,3 +116,14 @@ const createOpts = ({
 		}
 	})
 }
+
+export const moveFolder = ({ src, dest, assetsLocation, files }) => new Promise((resolve, reject) => {
+	console.log('copying node_modules')
+	console.log('src', src)
+	console.log('dest', dest)
+	moveSync(src, dest)
+	return resolve({
+		assetsLocation,
+		files
+	})
+})
