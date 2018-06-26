@@ -7,8 +7,6 @@ export const buildCode = ({
 	exec,
 	spawn
 }) => new Promise((resolve, reject) => {
-	console.log('testingCode')
-
 	console.log('buildingCode')
 	const ls = spawn(
 		`npm`,
@@ -33,6 +31,6 @@ export const buildCode = ({
 				})
 			}
 	  console.log(`buildCode exited with code ${code}`);
-		resolve({})
+	resolve({})
 	})
 })
