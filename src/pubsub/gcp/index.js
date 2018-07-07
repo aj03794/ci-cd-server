@@ -4,8 +4,7 @@ import { resolve as resolvePath } from 'path'
 import { homedir } from 'os'
 
 export const gcp = ({
-  getSetting,
-  uuid
+  getSetting
 }) => new Promise((resolve, reject) => {
   console.log('GCP')
   const {
@@ -15,7 +14,7 @@ export const gcp = ({
   } = createSubject()
 
   const gcpCreds = getSetting('googleApplicationCredentials')
-  const subscriptionName = `projects/smart-home-monitoring-system/subscriptions/take-photo-${uuid}`
+  const subscriptionName = `projects/smart-home-monitoring-system/subscriptions/ci`
   const keyFilename = resolvePath(homedir(), 'gcp-creds', gcpCreds)
   console.log('keyFilename', keyFilename)
 	const pubsub = new PubSub({
@@ -38,9 +37,9 @@ export const gcp = ({
 
   subscription.on(`message`, messageHandler)
 
-  return resolve({
-    allGcpMsgs,
-    filterGcpMsgs
-  })
+//   return resolve({
+//     allGcpMsgs,
+//     filterGcpMsgs
+//   })
 
 })
