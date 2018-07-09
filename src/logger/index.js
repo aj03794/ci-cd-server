@@ -3,6 +3,7 @@ export const loggerCreator = ({
     loggingLevel = 'info'
 }) => {
 
+    // Mimic GCP levels in stackdriver
     const levels = {
         any: 0,
         debug: 1,
@@ -17,9 +18,7 @@ export const loggerCreator = ({
                 return { 
                     ...obj,
                     [level]: log => {
-                        console.log(log)
-                        console.log(level)
-                        console.log(levels[loggingLevel], levels[level])
+                        console.log(level, log)
                         if (levels[level] >= levels[loggingLevel]) {
                             return publish({
                                 channel: 'logging',
