@@ -21,6 +21,17 @@ Promise.all([
 	const logger = loggerCreator({ publish })
 	const slack = slackCreator({ publish })
 
+	console.log('logger', logger)
+
+	logger.info({
+		new: 'log'
+	})
+
+
+	logger.debug({
+		new: 'adsfa'
+	})
+
 	init({
 		publish,
 		slackCreator,

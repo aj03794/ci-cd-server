@@ -1,5 +1,6 @@
 export const loggerCreator = ({
-    publish
+    publish,
+    loggingLevel = 'info'
 }) => {
 
     const levels = {
@@ -11,26 +12,25 @@ export const loggerCreator = ({
         critical: 5
     }
 
-    const logger = Object.keys(levels).map(level => {
-        return level
-    })
-    .reduce((obj, currentValue) => {
-        return { 
-            ...obj,
-            [currentValue]: log => {
-                console.log('log', log)
-                console.log('currentValue', currentValue)
-                publish({
-                    channel: 'logging',
-                    data: {
-                        level: currentValue,
-                        log
+    return Object.keys(levels)
+            .reduce((obj, level) => {
+                return { 
+                    ...obj,
+                    [level]: log => {
+                        console.log(log)
+                        console.log(level)
+                        console.log(levels[loggingLevel], levels[level])
+                        if (levels[level] >= levels[loggingLevel]) {
+                            return publish({
+                                channel: 'logging',
+                                data: {
+                                    level,
+                                    log
+                                }
+                            }) 
+                        }
                     }
-                })
-            }
-        }
-    }, {})
-
-    return logger
+                }
+            }, {})
 
 }
