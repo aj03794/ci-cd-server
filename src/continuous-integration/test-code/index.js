@@ -2,23 +2,26 @@ import { resolve as resolvePath } from 'path'
 
 export const testCode = ({
 	locationOfRepo,
-	// data,
 	repoName,
-	exec
+	exec,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('testingCode')
+	logger.info({
+		msg: `Testing code for ${repoName}`
+	})
 	exec(`npm run test`, { cwd: resolvePath(locationOfRepo, repoName) }, (err, stdout, stderr) => {
-		console.log('stdout', stdout)
 		if (err) {
-			return reject({
-				method: 'testCode',
-				data: {
-					err
-				}
+			logger.error({
+				method: `testCode`,
+				msg: `Npm run test failed for ${repoName}`,
+				err
 			})
+			return reject()
 		}
+		logger.info({
+			msg: `All tests passed for ${repoName}`
+		})
 		return resolve({
-			method: 'testCode',
 			data: {
 				locationOfRepo
 			}

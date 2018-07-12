@@ -10,17 +10,17 @@ const server = Hapi.server({
 
 const addRoute = route => server.route(route)
 
-export const init = async ({ publish, slackCreator }) => {
+export const init = async ({ publish, slackCreator, logger }) => {
     
     const slack = slackCreator({ publish })
     await server.start()
     console.log(`Server running at: ${server.info.uri}`)
-    createRoutes({ publish, slack }).forEach(addRoute)
+    createRoutes({ publish, slack, logger }).forEach(addRoute)
     return server
 }
 
 
-export const createRoutes = ({ publish, slack }) => {
+export const createRoutes = ({ publish, slack, logger }) => {
   return [{
     method: 'POST',
     path: '/payload',
@@ -28,7 +28,10 @@ export const createRoutes = ({ publish, slack }) => {
       console.log('---------------------------------')
         if (request.payload && request.payload.pull_request && request.payload.pull_request.merged) {
           console.log('REQUEST PAYLOAD', request.payload)
-          console.log(request.payload.repository)
+          logger.info({
+            msg: `Request payload ${request.payload}`
+          })
+          // console.log(request.payload.repository)
           const {
             payload: {
               repository: {
@@ -45,20 +48,21 @@ export const createRoutes = ({ publish, slack }) => {
               }
             }
           } = request
-          console.log('branch', branch)
-          console.log('repoName', repoName)
-          console.log('urlToClone', urlToClone)
-          console.log('githubUser', githubUser)
-          slack({
-            slackMsg: `STARTING NEW BUILD FOR: ${repoName}`
-          })
+          // console.log('branch', branch)
+          // console.log('repoName', repoName)
+          // console.log('urlToClone', urlToClone)
+          // console.log('githubUser', githubUser)
+          // slack({
+          //   slackMsg: `STARTING NEW BUILD FOR: ${repoName}`
+          // })
           continuousIntegration({
             branch,
             urlToClone,
             repoName,
             publish,
             githubUser,
-            slack
+            slack,
+            logger
           })
         }
         return {}

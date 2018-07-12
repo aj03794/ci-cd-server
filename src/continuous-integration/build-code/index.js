@@ -2,12 +2,13 @@ import { resolve as resolvePath } from 'path'
 
 export const buildCode = ({
 	locationOfRepo,
-	// data,
 	repoName,
-	exec,
-	spawn
+	spawn,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('buildingCode')
+	logger.info({
+		msg: `Building code for ${repoName}`
+	})
 	const ls = spawn(
 		`npm`,
 		['run', 'build'],
@@ -23,14 +24,15 @@ export const buildCode = ({
 
 	ls.on('close', (code) => {
 		if (code !== 0) {
-				return reject({
-					method: 'buildCode',
-					data: {
-						err
-					}
-				})
-			}
-	  console.log(`buildCode exited with code ${code}`);
-	resolve({})
+			logger.error({
+				method: `buildCode`,
+				msg: `Building code for ${repoName} failed`
+			})
+			return reject()
+		}
+		logger.info({
+			msg: `Building code for ${repoName} succeeded with exit code ${code}`
+		})
+		resolve()
 	})
 })

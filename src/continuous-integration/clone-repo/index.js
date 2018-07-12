@@ -6,30 +6,31 @@ import { cwd } from 'process'
 export const cloneRepo = ({
 	exec,
 	urlToClone,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
+
 	const directoryToCloneRepo = process.env.DIRECTORY_TO_SAVE_REPOS || resolvePath(cwd(), 'downloads-from-github')
 	const locationToCloneRepo = resolvePath(directoryToCloneRepo)
 	doesCopyOfRedoExist({
 		locationToCloneRepo,
-		repoName
+		repoName,
+		logger
 	})
 	.then(exists => {
 		if (exists) {
-			console.log('Repo already exists')
-			return deleteOldRepo({ locationToCloneRepo, repoName })
+			logger.info({
+				msg: `${repoName} already exists`
+			})
+			return deleteOldRepo({ locationToCloneRepo, repoName, logger })
 		}
-		console.log('Repo does not already exist')
+		logger.info({
+			msg: `${repoName} does not already exist`
+		})
 		return Promise.resolve()
 	})
-	.then(() => doRepoClone({ locationToCloneRepo, urlToClone, exec }))
-	.catch(err => {
-		console.log('err', err)
-		return reject(err)
-	})
-	.then(result => console.log('result', result))
+	.then(() => doRepoClone({ locationToCloneRepo, urlToClone, exec, logger, repoName }))
 	.then(() => {
-		console.log('Finished cloning')
 		resolve({
 			data: {
 				locationOfRepo: locationToCloneRepo
@@ -37,48 +38,50 @@ export const cloneRepo = ({
 		})
 	})
 	.catch(err => {
-		return reject({
+		logger.error({
+			msg: `Something failed within cloneRepo for ${repoName}`,
 			method: 'cloneRepo',
-			data: {
-				err
-			}
+			err
 		})
+		return reject()
 	})
 })
 
 // Deletes old cloned repo
 export const deleteOldRepo = ({
 	locationToCloneRepo,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('Deleting old repo')
+	logger.info({
+		msg: `Deleting old ${repoName}`
+	})
 	return remove(resolvePath(locationToCloneRepo, repoName), err => {
 		if (err) {
-			return reject({
-				method: 'deleteOldRepo',
-				data: {
-					successful: false,
-					err
-				}
+			logger.error({
+				msg: `Deleting old ${repoName} failed`,
+				method: 'deleteOldApp',
+				err
 			})
+			reject(err)
 		}
-		return resolve({
-			method: 'deleteOldRepo',
-			data: {
-				successful: true,
-				err: null
-			}
+		logger.info({
+			msg: `Deleting old ${repoName} succeeded`
 		})
+		return resolve()
 	})
 })
 
 // Returns true or false
 const doesCopyOfRedoExist = ({
 	locationToCloneRepo,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
 	const doesRepoExist = existsSync(resolvePath(locationToCloneRepo, repoName))
-	console.log('DOES doesRepoExist', doesRepoExist)
+	logger.info({
+		msg: `${repoName} exists: ${doesRepoExist}`
+	})
 	return resolve(doesRepoExist)
 })
 
@@ -87,23 +90,25 @@ const doesCopyOfRedoExist = ({
 const doRepoClone = ({
 	locationToCloneRepo,
 	urlToClone,
-	exec
+	exec,
+	logger,
+	repoName
 }) => new Promise((resolve, reject) => {
-	console.log('doing cloning of repo')
+	logger.info({
+		msg: `Cloning ${repoName} from url: ${urlToClone}`
+	})
 	exec(`git clone ${urlToClone}`, { cwd: locationToCloneRepo }, (err, stdout, stderr) => {
 		if (err) {
-			return reject({
+			logger.error({
+				msg: `Cloning ${repoName} failed`,
 				method: 'doRepoClone',
-				data: {
-					err
-				}
+				err
 			})
+			return reject(err)
 		}
-		return resolve({
-			method: 'doRepoClone',
-			data: {
-				locationOfRepo: locationToCloneRepo
-			}
+		logger.info({
+			msg: `Cloned ${repoName} successfully`
 		})
+		return resolve()
 	})
 })

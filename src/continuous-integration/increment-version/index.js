@@ -4,17 +4,19 @@ import { cwd } from 'process'
 import { readFileSync } from 'fs'
 
 export const incrementVersion = ({
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
 	const currentWorkingDir = resolvePath(cwd(), 'downloads-from-github', repoName)
-	console.log('currentWorkingDir', currentWorkingDir)
 	return doIncrementVersion({
-		currentWorkingDir
+		currentWorkingDir,
+		logger,
+		repoName
 	})
 	.catch(err => {
 		return reject(err)
 	})
-	.then(() => getVersion({ currentWorkingDir }))
+	.then(() => getVersion({ currentWorkingDir, repoName, logger }))
 	.then(({ version }) => resolve({ version }))
 	.catch(err => {
 		return reject({
@@ -27,19 +29,26 @@ export const incrementVersion = ({
 })
 
 const getVersion = ({
-	currentWorkingDir
+	currentWorkingDir,
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('Getting version')
 	const version = JSON.parse(readFileSync(resolvePath(currentWorkingDir, 'package.json')))['version']
+	logger.info({
+		msg: `Current verison of ${repoName} is ${version}`
+	})
 	return resolve({ version })
 })
 
 
 const doIncrementVersion = ({
-	currentWorkingDir
+	currentWorkingDir,
+	logger,
+	repoName
 }) => new Promise((resolve, reject) => {
-	console.log('Incrementing version')
-
+	logger.info({
+		msg: `Incrementing version for ${repoName}`
+	})
 	const ls = spawn(`npm`, ['run', 'version-patch'], { cwd: currentWorkingDir });
 
 	let err = null
@@ -47,19 +56,18 @@ const doIncrementVersion = ({
 	ls.stderr.on('data', (data) => {
 	  console.log(`doIncrementVersion stderr: ${data}`)
 	  err = null
-
 	})
 
 	ls.on('close', (code) => {
 		if (code !== 0) {
-				return reject({
-					method: 'installNodeModules',
-					data: {
-						err
-					}
-				})
-			}
-	  console.log(`doIncrementVersion exited with code ${code}`);
+			logger.error({
+				method: `doIncrementVersion`,
+				msg: `Incrementing version failed on ${repoName}`,
+				err
+			})
+			return reject()
+		}
+		logger.info(`Incrementing version for ${repoName} succeeded with exit code ${code}`)
 		resolve({})
 	})
 })

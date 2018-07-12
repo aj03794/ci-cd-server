@@ -14,96 +14,51 @@ export const continuousIntegration = ({
 	repoName,
 	publish,
 	githubUser,
-	slack
+	slack,
+	logger
 }) => new Promise((resolve, reject) => {
 	if (branch === 'master') {
 		const locationOfRepo = resolvePath(process.env.DIRECTORY_TO_SAVE_REPOS)
-		console.log('locationOfRepo', locationOfRepo)
-		console.log('Code was recently merged into master')
+		
+		logger.info({
+			msg: `Code for ${repoName} was recently merged into master`
+		})
+
 		const commonReqs = {
 			repoName,
 			exec,
 			locationOfRepo,
+			logger,
 			spawn
 		}
-		slack({
-			slackMsg: {
-				repo: repoName,
-				step: 'cloning repo'
-			}
+
+		logger.info({
+			msg: `Starting a new build for ${repoName}`
 		})
+		
 		cloneRepo({
-			exec,
-			urlToClone,
-			repoName
+			...commonReqs,
+			urlToClone
 		})
 		.then(({
 			data
-		}) => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'installing node_modules'
-				}
-			})
-			return installNodeModules({ ...commonReqs })
-		})
+		}) => installNodeModules({ ...commonReqs }))
 		.then(({
 			data
-		}) => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'testing code'
-				}
-			})
-			return testCode({ ...commonReqs })
-		})
+		}) => testCode({ ...commonReqs }))
 		.then(({
 			data
-		}) => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'building code'
-				}
-			})
-			return buildCode({ ...commonReqs })
-		})
-		.then(() => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'incrementing version'
-				}
-			})
-			return incrementVersion({ ...commonReqs })
-		})
+		}) => buildCode({ ...commonReqs }))
+		.then(() => incrementVersion({ ...commonReqs }))
+		.then(({
+			version
+		}) => publishGithubArtifact({ ...commonReqs, version, locationOfRepo, githubUser }))
 		.then(({
 			version
 		}) => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'publishing github artifact'
-				}
+			logger.info({
+				msg: `Build for ${repoName} version ${version} finished successfully`
 			})
-			return publishGithubArtifact({ repoName, version, locationOfRepo, githubUser })
-		})
-		.then(({
-			version
-		}) => {
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'finished successfully'
-				}
-			})
-			console.log('Alerting listening apps that new version of app is available')
-			console.log('githubUser', githubUser)
-			console.log('repoName', repoName)
-			console.log('version', version)
-			// emit to listening apps that a new version of the code is available for donwload
 			publish({
 				channel: 'continuous delivery',
 				data: {
@@ -115,13 +70,10 @@ export const continuousIntegration = ({
 		  return {}
 		})
 		.catch(err => {
-			console.log('ERROR OCCURRED', err)
-			slack({
-				slackMsg: {
-					repo: repoName,
-					step: 'build failed',
-					error: err
-				}
+			logger.info({
+				method: 'continuousIntegration',
+				msg: `Error occurred in Continuous Integration`,
+				err
 			})
 			reject()
 		})

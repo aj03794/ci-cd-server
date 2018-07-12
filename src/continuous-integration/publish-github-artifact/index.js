@@ -8,38 +8,46 @@ export const publishGithubArtifact = ({
 	version,
 	locationOfRepo,
 	githubUser,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('Creating github release')
+	logger.info({
+		msg: `Creating github release for ${repoName}`
+	})
 	return moveFolder({
 		src: resolvePath(locationOfRepo, repoName, 'node_modules'),
-		dest: resolvePath(locationOfRepo, repoName, 'dist', 'node_modules')
+		dest: resolvePath(locationOfRepo, repoName, 'dist', 'node_modules'),
+		logger,
+		repoName
 	})
-	.then(() => readDirectory({ locationOfRepo, repoName })
+	.then(() => readDirectory({ locationOfRepo, repoName, logger })
 	.then(({
 		assetsLocation,
 		files
-	}) => zipDirectory({ assetsLocation, files, locationOfRepo, version, repoName }))
+	}) => zipDirectory({ assetsLocation, files, locationOfRepo, version, repoName, logger }))
 	.then(({
 		files
-	}) => createOpts({ version, files, githubUser, repoName }))
+	}) => createOpts({ version, files, githubUser, repoName, logger }))
 	.then(({
 		opts
 	}) => {
 		return publishRelease(opts, (err, release) => {
-			console.log('Publishing release')
+			logger.info({
+				msg: `Publishing ${repoName} with ${opts}`
+			})
 		  // `release`: object returned from github about the newly created release
 			if (err) {
-				console.log('err publishing release', err)
-				return reject({
-					method: 'publishRelease',
-					data: {
-						successful: false,
-						err
-					}
+				logger.error({
+					method: `publishRelease`,
+					msg: `Error publishing ${repoName}`,
+					err
 				})
+				console.log('err publishing release', err)
+				return reject()
 			}
-			console.log('RELEASE CREATED')
+			logger.info({
+				msg: `${repoName} version ${version} release created successfully`
+			})
 			resolve({ version })
 		})
 	}))
@@ -47,19 +55,29 @@ export const publishGithubArtifact = ({
 
 export const readDirectory = ({
 	locationOfRepo,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
 	const assetsLocation = resolvePath(
 		locationOfRepo,
 		repoName,
 		'dist'
 	)
-	console.log('assetsLocation', assetsLocation)
+	logger.info({
+		msg: `Reading ${repoName} assets at ${assetsLocation}`
+	})
 	return readDir(assetsLocation, (err, files) => {
 		if (err) {
-			console.log('readDir error', err)
+			logger.error({
+				method: `readDirectory`,
+				msg: `Reading ${repoName} assets location failed`,
+				err
+			})
 			return
 		}
+		logger.info({
+			msg: `Successfully retrieved assets location for ${repoName}`
+		})
 		return resolve({
 			assetsLocation,
 			files
@@ -72,15 +90,24 @@ const zipDirectory = ({
 	files,
 	locationOfRepo,
 	version,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('ASSETSLOCATION', assetsLocation)
+	logger.info({
+		msg: `Zipping ${assetsLocation}`
+	})
 	return zipdir(assetsLocation, { saveTo: resolvePath(assetsLocation, '../', `${repoName}-${version}.zip`) }, function (err, buffer) {
 		if (err) {
-			console.log('zipDirectory err', err)
-			return
+			logger.info({
+				method: `zipDirectory`,
+				msg: `Failed zipping ${assetsLocation}`,
+				err
+			})
+			return reject()
 		}
-		console.log('Finishing zipping directory')
+		logger.info({
+			msg: `Finished zipping ${assetsLocation}`
+		})
 		return resolve({
 			assetsLocation,
 			files: [
@@ -117,13 +144,24 @@ const createOpts = ({
 	})
 }
 
-export const moveFolder = ({ src, dest, assetsLocation, files }) => new Promise((resolve, reject) => {
-	console.log('copying node_modules')
-	console.log('src', src)
-	console.log('dest', dest)
-	moveSync(src, dest)
-	return resolve({
-		assetsLocation,
-		files
+export const moveFolder = ({ src, dest, logger, repoName }) => new Promise((resolve, reject) => {
+	logger.info({
+		msg: `Copying node modules for ${repoName} from ${src} to ${dest}`
 	})
+	try {
+		moveSync(src, dest)
+		logger.info({
+			msg: `Finished copying node_modules for ${repoName}`
+		})
+		return resolve()
+	}
+	catch (e) {
+		logger.error({
+			method: `moveFolder`,
+			msg: `Copying node_modules for ${repoName} failed`,
+			err: e
+		})
+		return reject(e)
+	}
+	
 })

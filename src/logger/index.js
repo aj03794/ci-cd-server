@@ -1,6 +1,7 @@
 export const loggerCreator = ({
     publish,
-    loggingLevel = 'info'
+    loggingLevel = 'info',
+    appName
 }) => {
 
     // Mimic GCP levels in stackdriver
@@ -13,7 +14,7 @@ export const loggerCreator = ({
         critical: 5
     }
 
-    return Object.keys(levels)
+    const logger = Object.keys(levels)
             .reduce((obj, level) => {
                 return { 
                     ...obj,
@@ -24,12 +25,14 @@ export const loggerCreator = ({
                                 channel: 'logging',
                                 data: {
                                     level,
-                                    log
+                                    log: {...log, appName}
                                 }
                             }) 
                         }
                     }
                 }
             }, {})
+
+    return logger
 
 }

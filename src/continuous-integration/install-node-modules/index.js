@@ -3,21 +3,27 @@ import { resolve as resolvePath } from 'path'
 export const installNodeModules = ({
 	exec,
 	locationOfRepo,
-	repoName
+	repoName,
+	logger
 }) => new Promise((resolve, reject) => {
-	console.log('Installing node modules')
-	// const { locationOfRepo } = data
+	logger.info({
+		msg: `Installing node_modules for ${repoName}`
+	})
 	exec(`npm install`, { cwd: resolvePath(locationOfRepo, repoName) }, (err, stdout, stderr) => {
 		if (err) {
-			return reject({
-				method: 'installNodeModules',
-				data: {
-					err
-				}
+			logger.error({
+				method: `installNodeModules`,
+				msg: `npm installed for ${repoName}`,
+				err
 			})
+			return reject()
 		}
+
+		logger.info({
+			msg: `Installing node_modules successful for ${repoName}`
+		})
+
 		return resolve({
-			method: 'installNodeModules',
 			data: {
 				locationOfRepo
 			}

@@ -17,20 +17,9 @@ Promise.all([
 	{ publish },
 	{ subscribe }
 ]) => {
-
-	const logger = loggerCreator({ publish })
+	
+	const logger = loggerCreator({ publish, appName: 'continuous-integration' })
 	const slack = slackCreator({ publish })
-
-	console.log('logger', logger)
-
-	logger.info({
-		new: 'log'
-	})
-
-
-	logger.debug({
-		new: 'adsfa'
-	})
 
 	init({
 		publish,
