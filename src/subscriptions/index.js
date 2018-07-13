@@ -1,8 +1,10 @@
 export const initalizeGithubListener = ({
-    filterGcpMsgs
+    filterGcpMsgs,
+    logger
 }) => {
     createSubscriptions({
-        filterGcpMsgs
+        filterGcpMsgs,
+        logger
     })
     // .then(({
     //     gcpSubscription
@@ -14,7 +16,8 @@ export const initalizeGithubListener = ({
 }
 
 const createSubscriptions = ({
-    filterGcpMsgs
+    filterGcpMsgs,
+    logger
 }) => new Promise((resolve, reject) => {
 
         const gcpSubscription = filterGcpMsgs(msg => {

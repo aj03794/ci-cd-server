@@ -25,6 +25,7 @@ export const gcp = ({
   const subscription = pubsub.subscription(subscriptionName)
 
   const messageHandler = message => {
+    console.log('MESSAGE', JSON.parse(message.data.toString('utf-8')))
     next({
       meta: {
         timestamp: 'placeholder'
@@ -37,6 +38,11 @@ export const gcp = ({
   }
 
   subscription.on(`message`, messageHandler)
+
+  filterGcpMsgs(msg => {
+    console.log('msg', msg)
+    return true
+  })
 
   return resolve({
     allGcpMsgs,
